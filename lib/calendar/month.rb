@@ -12,8 +12,8 @@ module Calendar
       @dates = (1..@day_count).map { |number| Date.new(@year.value, @value, number) }
     end
 
-    def generate(vertical: false)
-      vertical ? body_with_vertical : body_with_horizontal
+    def to_array
+      [@name, *([''] * first_date_wday), *@dates]
     end
 
     private
@@ -31,32 +31,6 @@ module Calendar
 
     def first_date_wday
       @dates.first.wday
-    end
-
-    def body_with_horizontal
-      line = "#{@name}  " + ' ' * (3 * first_date_wday)
-      line + @dates.map do |date|
-        next date.strftime('%_2d ') if @year.today.nil?
-
-        next_day = date.next_day
-        case @year.today
-        when date
-          if date.day == 1
-            "[#{date.day}]"
-          else
-            ''
-          end
-        when next_day
-          next_day_string = next_day.strftime('%-d')
-          date.strftime('%_2d') + (next_day_string.length > 1 ? '' : ' ') + "[#{next_day_string}]"
-        else
-          date.strftime('%_2d ')
-        end
-      end.join.rstrip
-    end
-
-    def body_with_vertical
-
     end
   end
 end

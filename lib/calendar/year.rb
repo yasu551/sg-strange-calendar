@@ -1,4 +1,5 @@
 require_relative 'month'
+require_relative 'table'
 require 'date'
 
 module Calendar
@@ -20,22 +21,15 @@ module Calendar
     end
 
     def generate(vertical: false)
-      lines = [header(vertical:), *@months.map { |month| month.generate(vertical:) }]
-      lines.join("\n")
+      rows = [header, *@months.map(&:to_array)]
+      table = Table.new(rows:, today: @today)
+      table.generate(vertical:)
     end
 
     private
 
-    def header(vertical: false)
-      vertical ? header_with_vertical : header_with_horizontal
-    end
-
-    def header_with_horizontal
-      "#{@value} " + 'Su Mo Tu We Th Fr Sa ' * 5 + 'Su Mo'
-    end
-
-    def header_with_vertical
-      [@value.to_s, Month::NAMES].join(' ')
+    def header
+      [@value.to_s, *(%w[Su Mo Tu We Th Fr Sa] * 5), 'Su', 'Mo']
     end
   end
 end
