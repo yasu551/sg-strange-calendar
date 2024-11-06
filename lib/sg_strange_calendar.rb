@@ -6,6 +6,6 @@ class SgStrangeCalendar
   end
 
   def generate(vertical: false)
-    @year.generate
+    @year.generate(vertical:)
   end
 end
