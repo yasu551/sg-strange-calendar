@@ -3,7 +3,6 @@ require 'date'
 module Calendar
   class Month
     NAMES = %w[Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec].freeze
-    DATE_STRING_LENGTH = 2
 
     def initialize(year:, value:)
       @year = year
@@ -14,8 +13,26 @@ module Calendar
     end
 
     def generate
-      line = "#{@name}  " + ' ' * ((DATE_STRING_LENGTH + 1) * first_date_wday)
-      line + @dates.map { |date| date.strftime("%_#{DATE_STRING_LENGTH}d") }.join(' ')
+      line = "#{@name}  " + ' ' * (3 * first_date_wday)
+      line + @dates.map do |date|
+        next date.strftime('%_2d ') if @year.today.nil?
+
+        next_day = date.next_day
+        case @year.today
+        when date
+          date_string = date.strftime('%-d')
+          if date_string == '1'
+            "[#{date_string}]"
+          else
+            ''
+          end
+        when next_day
+          next_day_string = next_day.strftime('%-d')
+          date.strftime('%_2d') + (next_day_string.length > 1 ? '' : ' ') + "[#{next_day_string}]"
+        else
+          date.strftime('%_2d ')
+        end
+      end.join.rstrip
     end
 
     def first_date_wday

@@ -1,16 +1,19 @@
 require_relative 'month'
+require 'date'
 
 module Calendar
   class Year
-    attr_reader :value
+    attr_reader :value, :today
 
-    def initialize(value:)
+    def initialize(value:, today: nil)
       @value = value
+      @today = today
       @months = (1..Month::NAMES.size).map { |value| Month.new(year: self, value:) }
     end
 
     def leap_year?
-      (@value % 4).zero? && ((@value % 100).nonzero? || (@value % 400).zero?)
+      date = Date.new(@value, 1, 1)
+      date.leap?
     end
 
     def generate
