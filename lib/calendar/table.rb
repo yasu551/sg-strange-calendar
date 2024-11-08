@@ -29,7 +29,7 @@ module Calendar
       text = [header, *body].join("\n")
       return text unless @today
 
-      replace_today(text:, today: @today)
+      replace_today_for_horizontal(text:, today: @today)
     end
 
     def generate_with_vertical
@@ -39,22 +39,24 @@ module Calendar
           "#{row.first}  ",
           *row[1..].map do |cell|
             if cell.is_a?(Date)
-              cell.strftime('%_3d')
+              string_format =
+                if cell == @today
+                  space_size = cell.day > 9 ? 0 : 1
+                  ' ' * space_size + '[%-d]'
+                else
+                  '%_3d'
+                end
+              cell.strftime(string_format)
             else
               '   '
             end
           end
         ].join(' ').rstrip
       end
-      if @today
-        month_index = @today.month
-        wday_index = Date.new(@today.year, @today.month, 1).wday + @today.day - 1
-        result = /^(.{#{(month_index - 1) * 4 + 5}}(?<today>(\s{0,2})\b#{@today.day}\b\s?))/.match(body[wday_index])
-        captured_today = result[:today]
-        capture = result.to_a[0]
-        body[wday_index].gsub!(capture, capture[..(capture.length - captured_today.length)] + "#{' ' if @today.day > 9}[#{@today.day}]")
-      end
-      [header, *body].join("\n")
+      text = [header, *body].join("\n")
+      return text unless @today
+
+      replace_today_for_vertical(text:, today: @today)
     end
 
     def transposed_rows
@@ -67,10 +69,16 @@ module Calendar
       @transposed_rows = filled_rows.transpose
     end
 
-    def replace_today(text:, today:)
+    def replace_today_for_horizontal(text:, today:)
       result = /[^\S\n\r]\[(#{today.day})\][^\S\n\r]?/.match(text)
       captured = result.to_a[0]
       text.gsub(captured, today.day > 9 ? captured.strip : captured.rstrip)
+    end
+
+    def replace_today_for_vertical(text:, today:)
+      result = /\[(#{today.day})\][^\S\n\r]?/.match(text)
+      captured = result.to_a[0]
+      text.gsub(captured, captured.rstrip)
     end
   end
 end
