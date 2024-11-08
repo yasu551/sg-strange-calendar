@@ -18,17 +18,18 @@ module Calendar
           "#{row.first} ",
           *row[1..].map do |cell|
             if cell.is_a?(Date)
-              cell.strftime('%_2d')
+              string_format = cell == @today ? '[%-d]' : '%_2d'
+              cell.strftime(string_format)
             else
               '  '
             end
           end
         ].join(' ')
       end
-      if @today
-        body[@today.month - 1].gsub!(/\s\b#{@today.day}\b\s?/, "[#{@today.day}]")
-      end
-      [header, *body].join("\n")
+      text = [header, *body].join("\n")
+      return text unless @today
+
+      replace_today(text:, today: @today)
     end
 
     def generate_with_vertical
@@ -64,6 +65,12 @@ module Calendar
         row + [''] * (max_length - row.length)
       end
       @transposed_rows = filled_rows.transpose
+    end
+
+    def replace_today(text:, today:)
+      result = /[^\S\n\r]\[(#{today.day})\][^\S\n\r]?/.match(text)
+      captured = result.to_a[0]
+      text.gsub(captured, today.day > 9 ? captured.strip : captured.rstrip)
     end
   end
 end
