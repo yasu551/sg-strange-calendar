@@ -4,9 +4,6 @@ require 'date'
 
 module Calendar
   class Year
-    VERTICAL_BODY_ROW_COUNT = 37
-    WEEKDAY_COUNT = 7
-
     attr_reader :value, :today
 
     def initialize(value:, today: nil)
